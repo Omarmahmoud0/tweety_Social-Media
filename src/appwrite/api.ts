@@ -83,6 +83,9 @@ export async function signOutAccount() {
   try {
     const session = account.deleteSession("current");
 
+    setTimeout(() => {
+      window.location.reload();
+    }, 2000);
     return session;
   } catch (error) {
     console.log(error);
@@ -527,11 +530,11 @@ export async function ResetPasswordApi({
     const result = await account.updateRecovery(
       userId, // userId
       token, // secret
-      password// password
+      password // password
     );
     if (!result) throw Error;
 
-    return result
+    return result;
   } catch (error) {
     console.log(error);
   }
