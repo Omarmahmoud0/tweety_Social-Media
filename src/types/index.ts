@@ -64,3 +64,11 @@ export type IUpdateProfile = {
     imageUrl: URL;
     file: File[];
 }
+
+export type ICommentUser = {
+    name: string;
+    imageUrl: string;
+    id: string;
+    title: string;
+    postId: string;
+};

@@ -1,4 +1,5 @@
 import {
+  commentPost,
   createPost,
   createUserAccount,
   deletePost,
@@ -20,7 +21,7 @@ import {
   UpdatePost,
   UpdateProfile,
 } from "@/appwrite/api";
-import { INewPost, INewUser, IUpdatePost, IUpdateProfile } from "@/types";
+import { ICommentUser, INewPost, INewUser, IUpdatePost, IUpdateProfile } from "@/types";
 import {
   useQuery,
   useMutation,
@@ -256,5 +257,17 @@ export const useUpdatePassword = () => {
   return useMutation({
     mutationFn: (Password: { newPassword: string; oldPassword: string }) =>
       UpdatePassword(Password),
+  });
+};
+
+export const useComment = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (comment: ICommentUser ) => commentPost(comment),
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POST_BY_ID]
+      })
+    }
   });
 };

@@ -1,3 +1,4 @@
+import Comments from "@/components/shared/Comments";
 import GridPostsList from "@/components/shared/GridPostsList";
 import Loader from "@/components/shared/Loader";
 import PostStats from "@/components/shared/PostStats";
@@ -9,6 +10,7 @@ import {
   useGetRelatedPosts,
 } from "@/lib/react-query/queriesAndMutations";
 import { multiFormatDateString } from "@/lib/utils";
+import { Models } from "appwrite";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 const PostDetails = () => {
@@ -118,9 +120,44 @@ const PostDetails = () => {
                 ))}
               </ul>
             </div>
+            <hr className="border-border-color w-full" />
+
+            {post?.comments.length != 0 ? (
+              <div className="flex flex-col gap-2 h-40 max-w-full overflow-hidden hover:overflow-y-scroll custom-scrollbar ">
+                {post?.comments.map((comment: Models.Document) => (
+                  <div className="flex gap-2">
+                    <img
+                      src={comment.imageUrl}
+                      className="rounded-full object-cover w-10 h-10"
+                      alt=""
+                    />
+                    <div className="flex flex-col ">
+                      <div className="flex gap-3">
+                        <p className="flex break-all flex-col ">
+                          <Link to={`/profile/${comment.userId}`}>
+                            <span className="text-primary-600 min-w-max hover:border-b-2 border-primary-600">
+                              {comment.name}
+                            </span>
+                          </Link>
+                          {comment.comment}
+                        </p>
+                      </div>
+                      <p className="text-xs text-slate-500">
+                        {multiFormatDateString(comment.$createdAt)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex-center h-full w-full">
+                <p className="text-slate-600">No comments yet</p>
+              </div>
+            )}
 
             <div className="w-full">
               <PostStats post={post} userId={user.id} />
+              <Comments postId={id!} />
             </div>
           </div>
         </div>

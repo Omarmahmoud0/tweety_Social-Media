@@ -1,4 +1,10 @@
-import { INewPost, INewUser, IUpdatePost, IUpdateProfile } from "@/types";
+import {
+  ICommentUser,
+  INewPost,
+  INewUser,
+  IUpdatePost,
+  IUpdateProfile,
+} from "@/types";
 import { account, appwriteConfig, avatars, databases, storage } from "./config";
 import { ID, ImageGravity, Query } from "appwrite";
 
@@ -535,6 +541,29 @@ export async function ResetPasswordApi({
     if (!result) throw Error;
 
     return result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function commentPost(comment: ICommentUser) {
+  try {
+    const commentPost = await databases.createDocument(
+      appwriteConfig.databaseId,
+      appwriteConfig.commentCollectionId,
+      ID.unique(),
+      {
+        post: [comment.postId],
+        name: comment.name,
+        comment: comment.title,
+        imageUrl: comment.imageUrl,
+        userId: comment.id,
+      }
+    );
+
+    if (!commentPost) throw Error;
+
+    return commentPost;
   } catch (error) {
     console.log(error);
   }
