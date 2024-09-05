@@ -123,7 +123,7 @@ const PostDetails = () => {
             <hr className="border-border-color w-full" />
 
             {post?.comments.length != 0 ? (
-              <div className="flex flex-col gap-2 h-40 max-w-full overflow-hidden hover:overflow-y-scroll custom-scrollbar ">
+              <div className="flex flex-col gap-2 h-40 max-w-full md:overflow-hidden md:hover:overflow-y-scroll xs:overflow-y-scroll custom-scrollbar ">
                 {post?.comments.map((comment: Models.Document) => (
                   <div className="flex gap-2">
                     <img
