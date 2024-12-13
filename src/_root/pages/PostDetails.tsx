@@ -1,4 +1,3 @@
-import { getRecentPosts } from "@/appwrite/api";
 import Comments from "@/components/shared/Comments";
 import GridPostsList from "@/components/shared/GridPostsList";
 import Loader from "@/components/shared/Loader";
