@@ -22,11 +22,12 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import Loader from "@/components/shared/Loader";
 import ProfileUploader from "@/components/shared/ProfileUploader";
+import { useEffect } from "react";
 
 const UpdateProfile = () => {
-  const {id} = useParams()
+  const { id } = useParams();
   const { user, setUser } = useUserContext();
-  const { data: currentUser } = useGetUserId(id || '');
+  const { data: currentUser } = useGetUserId(id || "");
   const { mutateAsync: Updateprofile, isPending } = useUpdateProfile();
   const navigate = useNavigate();
 
@@ -41,6 +42,18 @@ const UpdateProfile = () => {
       file: [],
     },
   });
+
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        email: user.email,
+        name: user.name,
+        username: user.username,
+        bio: user.bio,
+        file: [],
+      });
+    }
+  }, [user, form]);
 
   if (!currentUser)
     return (
@@ -59,8 +72,8 @@ const UpdateProfile = () => {
     });
 
     if (!UpdateUser) {
-      return toast({title:"Update user failed. Please try again."})
-    };
+      return toast({ title: "Update user failed. Please try again." });
+    }
 
     setUser({
       ...user,
@@ -69,12 +82,11 @@ const UpdateProfile = () => {
       username: UpdateUser.username,
       bio: UpdateUser.bio,
       imageUrl: UpdateUser.imageUrl,
-      id: user.id
+      id: user.id,
     });
     navigate(-1);
     return UpdateUser;
   }
-
 
   return (
     <div className="flex flex-1">
@@ -93,7 +105,8 @@ const UpdateProfile = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col gap-7 w-full mt-4 max-w-5xl">
+            className="flex flex-col gap-7 w-full mt-4 max-w-5xl"
+          >
             <FormField
               control={form.control}
               name="file"
@@ -183,13 +196,15 @@ const UpdateProfile = () => {
               <Button
                 type="button"
                 className="shad-button_dark_4"
-                onClick={() => navigate(-1)}>
+                onClick={() => navigate(-1)}
+              >
                 Cancel
               </Button>
               <Button
                 type="submit"
                 className="shad-button_primary whitespace-nowrap"
-                disabled={isPending}>
+                disabled={isPending}
+              >
                 {isPending && <Loader />}
                 Update Profile
               </Button>

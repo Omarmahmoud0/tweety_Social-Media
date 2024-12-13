@@ -1,3 +1,4 @@
+import { getRecentPosts } from "@/appwrite/api";
 import Comments from "@/components/shared/Comments";
 import GridPostsList from "@/components/shared/GridPostsList";
 import Loader from "@/components/shared/Loader";
@@ -26,6 +27,7 @@ const PostDetails = () => {
     isFetching: isRelatPostsLoading,
     isError,
   } = useGetRelatedPosts(post?.tags);
+  
 
   const relatedPosts = RelatedPosts?.documents.filter(
     (posts) => posts.$id !== id
@@ -37,6 +39,7 @@ const PostDetails = () => {
     deletePost({ postId: id, imageId: post?.imageUrl });
     navigate(-1);
   };
+
 
   return (
     <div className="post_details-container">
