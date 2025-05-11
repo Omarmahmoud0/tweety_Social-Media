@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import PostStats from "./PostStats";
 
 type GridPostListProps = {
   posts: { id: string }[] | undefined;
@@ -12,7 +11,6 @@ const GridPostsList = ({
   posts,
   dataType,
   showUser = true,
-  showStats = true,
 }: GridPostListProps) => {
   return (
     <div className="grid-container">

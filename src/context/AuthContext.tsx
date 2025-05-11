@@ -3,7 +3,6 @@ import { IContextType, IUser } from "@/types";
 import { onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 
 export const INITIAL_USER = {
   id: "",
@@ -28,7 +27,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser>(INITIAL_USER);
   const [isLoading, setIsLoading] = useState(false);
   const [token, setToken] = useState<string>("");
-  const navigate = useNavigate();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
@@ -66,14 +64,6 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     localStorage.setItem("token", JSON.stringify(token));
-  }, [token]);
-
-  useEffect(() => {
-    if (token) {
-      navigate("/");
-    } else {
-      navigate("/sign-in");
-    }
   }, [token]);
 
   const value = {
