@@ -1,40 +1,58 @@
-import { useUserContext } from "@/context/AuthContext";
-import { Models } from "appwrite";
 import { Link } from "react-router-dom";
 import PostStats from "./PostStats";
 
 type GridPostListProps = {
-  posts: Models.Document[] | undefined;
+  posts: { id: string }[] | undefined;
   showUser?: boolean;
   showStats?: boolean;
+  dataType: string;
 };
 
-const GridPostsList = ({ posts, showUser = true, showStats = true }: GridPostListProps) => {
-
-  const { user } = useUserContext();
-
-  return <div className="grid-container">
-    {
-      posts?.map((post:any) => (
-        <li key={post.$id} className="relative min-w-80 h-80">
-          <Link to={`/posts/${post.$id}`} className="grid-post_link">
-            <img src={post.imageUrl} alt="post" className="h-full w-full object-cover" />
+const GridPostsList = ({
+  posts,
+  dataType,
+  showUser = true,
+  showStats = true,
+}: GridPostListProps) => {
+  return (
+    <div className="grid-container">
+      {posts?.map((post: any) => (
+        <li key={post.id} className="relative min-w-80 h-80">
+          <Link
+            to={`/posts/${dataType === "posts" ? post.id : post.postId}`}
+            className="grid-post_link"
+          >
+            <img
+              src={dataType === "posts" ? post.imageUrl : post.postImageUrl}
+              alt="post"
+              className="h-full w-full object-cover"
+            />
           </Link>
 
           <div className="grid-post_user">
             {showUser && (
               <div className="flex items-center justify-start gap-2 flex-1">
-                <img src={post.creator.imageUrl} alt="creator" className="h-8 w-8 rounded-full"/>
-                <p className="line-clamp-1">{post.creator.name}</p>
+                <img
+                  src={
+                    dataType === "posts"
+                      ? post.creator.image
+                      : post.creatorImage
+                  }
+                  alt="creator"
+                  className="h-8 w-8 rounded-full"
+                />
+                <p className="line-clamp-1">
+                  {dataType === "posts" ? post.creator.name : post.creatorName}
+                </p>
               </div>
             )}
 
-            {showStats && <PostStats post={post} userId={user.id}/>}
+            {/* {showStats && <PostStats post={post} userId={user.id} />} */}
           </div>
         </li>
-      ))
-    }
-  </div>;
+      ))}
+    </div>
+  );
 };
 
 export default GridPostsList;

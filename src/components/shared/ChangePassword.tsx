@@ -18,7 +18,8 @@ import { useUpdatePassword } from "@/lib/react-query/queriesAndMutations";
 import { toast } from "@/components/ui/use-toast";
 
 const ChangePassword = () => {
-  const { mutateAsync: UpdatePassword, isPending: isLoading } = useUpdatePassword();
+  const { mutateAsync: UpdatePassword, isPending: isLoading } =
+    useUpdatePassword();
 
   const form = useForm<z.infer<typeof ChangePasswordValidation>>({
     resolver: zodResolver(ChangePasswordValidation),
@@ -36,7 +37,7 @@ const ChangePassword = () => {
     });
 
     if (session) {
-      form.reset()
+      form.reset();
       return toast({ title: "Updating has seccssfuly" });
     } else {
       return toast({ title: "Please try again." });
@@ -88,16 +89,16 @@ const ChangePassword = () => {
               </FormItem>
             )}
           />
-          
-            <Button type="submit" className="shad-button_primary w-full">
-              {isLoading ? (
-                <div className="flex-center gap-2">
-                  <Loader /> Loading...
-                </div>
-              ) : (
-                "Submit"
-              )}
-            </Button>
+
+          <Button type="submit" className="shad-button_primary w-full">
+            {isLoading ? (
+              <div className="flex-center gap-2">
+                <Loader /> Loading...
+              </div>
+            ) : (
+              "Submit"
+            )}
+          </Button>
         </form>
       </div>
     </Form>

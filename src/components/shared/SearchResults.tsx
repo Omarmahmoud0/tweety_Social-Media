@@ -1,17 +1,16 @@
-import { Models } from "appwrite";
 import Loader from "./Loader";
 import GridPostsList from "./GridPostsList";
 
 type SearchResults = {
-  searchPosts: Models.Document | any;
+  searchPosts: { id: string }[] | undefined;
   isSearchFetching: boolean;
 };
 
 const SearchResults = ({ isSearchFetching, searchPosts }: SearchResults) => {
   if (isSearchFetching) return <Loader />;
 
-  if (searchPosts && searchPosts.documents.length > 0) {
-    return <GridPostsList posts={searchPosts.documents}/>;
+  if (searchPosts && searchPosts.length > 0) {
+    return <GridPostsList posts={searchPosts} dataType="posts" />;
   }
 
   return (

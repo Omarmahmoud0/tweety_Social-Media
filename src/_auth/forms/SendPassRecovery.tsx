@@ -16,7 +16,7 @@ import { z } from "zod";
 import { PassRecovery } from "@/lib/validation";
 import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
-import { RecoveryPassword } from "@/appwrite/api";
+import { recoveryPassword } from "@/firebase/api";
 
 const SendPassRecovery = () => {
   const { toast } = useToast();
@@ -30,14 +30,16 @@ const SendPassRecovery = () => {
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof PassRecovery>) {
-    const passRecover = await RecoveryPassword(values.email);
+    const passRecover = await recoveryPassword(values.email);
     if (!passRecover) {
-        return toast({ title: "Please try again."});
+      return toast({ title: "Please try again." });
     }
-    
+
     if (passRecover) {
-        form.reset();
-        return toast({ title: "A message will be sent to your email, please check it"});
+      form.reset();
+      return toast({
+        title: "A message will be sent to your email, please check it",
+      });
     }
   }
 
@@ -56,7 +58,12 @@ const SendPassRecovery = () => {
               <FormItem>
                 <FormLabel>E-mail</FormLabel>
                 <FormControl>
-                  <Input type="email" className="shad-input" placeholder="Enter your email here" {...field} />
+                  <Input
+                    type="email"
+                    className="shad-input"
+                    placeholder="Enter your email here"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

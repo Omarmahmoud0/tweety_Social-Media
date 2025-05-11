@@ -1,66 +1,81 @@
 import {
   useDeleteSavedPost,
-  useGetCurrentUser,
+  useGetSaveUserPosts,
   useLikePost,
   useSavePost,
 } from "@/lib/react-query/queriesAndMutations";
 import { checkIsLiked } from "@/lib/utils";
-import { Models } from "appwrite";
 import Loader from "./Loader";
 import React, { useEffect, useState } from "react";
+import { IUser } from "@/types";
 
 type PostStatsProps = {
-  post?: Models.Document;
-  userId: string;
+  post?: any;
+  user: IUser;
+  comments: number;
 };
 
-const PostStats = ({ post, userId }: PostStatsProps) => {
-  const likesList = post?.likes.map((user: Models.Document) => user.$id);
-
-  const [likes, setLikes] = useState(likesList);
-
-  const [isSaved, setIsSaved] = useState(false);
-
-  const { mutate: likePost } = useLikePost();
-  const { mutate: savePost, isPending: isSavingPost } = useSavePost();
-  const { mutate: deleteSavedPost, isPending: isDeleteSaved } =
-    useDeleteSavedPost();
-  const { data: currentUser } = useGetCurrentUser();
-
-  const savedPostRecord = currentUser?.saves.find(
-    (record: Models.Document) => record.post?.$id === post?.$id
+const PostStats = ({ post, user, comments }: PostStatsProps) => {
+  const [isSaved, setIsSaved] = useState(new Set());
+  const likesList = post?.likes?.map(
+    (user: { userId: string; name: string; image: string }[]) => user
   );
+  const { mutate: likePost, isPending } = useLikePost();
+  const { data: savedPosts } = useGetSaveUserPosts(user.id);
+  const { mutateAsync: savePost, isPending: isSavingPost } = useSavePost();
+  const { mutateAsync: deleteSavedPost, isPending: isDeleteSaved } =
+    useDeleteSavedPost();
+
+  const isSavedPost = savedPosts?.find((save: any) => save.postId === post.id);
 
   useEffect(() => {
-    setIsSaved(!!savedPostRecord);
-  }, [currentUser]);
+    if (savedPosts) {
+      const save = savedPosts.map((save: any) => save.postId);
+      setIsSaved(new Set([...save]));
+    }
+  }, [savedPosts]);
 
   const handleLikePost = (e: React.MouseEvent) => {
     e.stopPropagation();
-
-    let newLikes = [...likes];
-
-    const hasLiked = newLikes.includes(userId);
-
-    if (hasLiked) {
-      newLikes = newLikes.filter((id) => id !== userId);
-    } else {
-      newLikes.push(userId);
-    }
-
-    setLikes(newLikes);
-    likePost({ postId: post?.$id || "", likesArray: newLikes });
+    const hasLiked = post?.likes?.some((post: any) => post.userId === user.id);
+    likePost({
+      postId: post.id,
+      user: { userId: user.id, name: user.name, imageUrl: user.imageUrl },
+      isLiked: hasLiked,
+    });
   };
 
-  const handleSavePost = (e: React.MouseEvent) => {
+  const checkHasSaved = (id: string) => {
+    if (isSaved.has(id)) {
+      setIsSaved((prev) => {
+        const newLikes = new Set(prev);
+        newLikes.delete(id);
+        return newLikes;
+      });
+    } else {
+      setIsSaved((prev) => {
+        const newLikes = new Set(prev);
+        newLikes.add(id);
+        return newLikes;
+      });
+      return id;
+    }
+  };
+
+  const handleSavePost = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
-    if (savedPostRecord) {
-      setIsSaved(false);
-      deleteSavedPost(savedPostRecord.$id);
-    } else {
-      savePost({ postId: post?.$id || "", userId });
-      setIsSaved(true);
+    const result = checkHasSaved(post.id);
+    if (!isSaved.has(post.id) && result !== undefined) {
+      await savePost({
+        creatorName: post.creator.name,
+        creatorImage: post.creator.image,
+        postId: post?.id || "",
+        userId: user.id,
+        postImageUrl: post.imageUrl,
+      });
+    } else if (isSaved.has(post.id) && isSavedPost && result === undefined) {
+      await deleteSavedPost({ userId: user.id, saveRecordID: isSavedPost.id });
     }
   };
 
@@ -68,35 +83,37 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
     <div className="flex justify-between items-center z-20">
       <div className="flex gap-3 mr-5">
         <div className="flex flex-center gap-1">
-        <img
-          src={
-            checkIsLiked(likes, userId)
-              ? "/assets/icons/liked.svg"
-              : "/assets/icons/like.svg"
-          }
-          width={20}
-          height={20}
-          alt="like"
-          onClick={handleLikePost}
-          className="cursor-pointer"
-        />
-        <p className="small-medium lg:base-medium">
-          {likes.length > 0 && likes.length}
-        </p>
-
+          {isPending ? (
+            <Loader />
+          ) : (
+            <img
+              src={
+                checkIsLiked(likesList, user.id)
+                  ? "/assets/icons/liked.svg"
+                  : "/assets/icons/like.svg"
+              }
+              width={20}
+              height={20}
+              alt="like"
+              onClick={handleLikePost}
+              className="cursor-pointer"
+            />
+          )}
+          <p className="small-medium lg:base-medium">
+            {likesList?.length > 0 && likesList.length}
+          </p>
         </div>
         <div className="flex flex-center gap-1">
-
-        <img
-          src={"/assets/icons/comments.svg"}
-          width={25}
-          height={25}
-          alt="comments"
-          className="cursor-pointer"
-        />
-        <p className="small-medium lg:base-medium">
-          {post?.comments.length > 0 && post?.comments.length}
-        </p>
+          <img
+            src={"/assets/icons/comments.svg"}
+            width={25}
+            height={25}
+            alt="comments"
+            className="cursor-pointer"
+          />
+          <p className="small-medium lg:base-medium">
+            {comments > 0 && comments}
+          </p>
         </div>
       </div>
 
@@ -105,7 +122,11 @@ const PostStats = ({ post, userId }: PostStatsProps) => {
           <Loader />
         ) : (
           <img
-            src={isSaved ? "/assets/icons/saved.svg" : "/assets/icons/save.svg"}
+            src={
+              isSaved.has(post.id)
+                ? "/assets/icons/saved.svg"
+                : "/assets/icons/save.svg"
+            }
             width={20}
             height={20}
             alt="save"

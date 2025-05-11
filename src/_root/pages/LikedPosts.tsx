@@ -1,20 +1,26 @@
 import GridPostsList from "@/components/shared/GridPostsList";
 import Loader from "@/components/shared/Loader";
-import { useGetCurrentUser } from "@/lib/react-query/queriesAndMutations";
+import { useUserContext } from "@/context/AuthContext";
+import { useGetRecentPosts } from "@/lib/react-query/queriesAndMutations";
 
 const LikedPosts = () => {
-  const { data: currentUser } = useGetCurrentUser();
+  const { data: posts, isFetching } = useGetRecentPosts();
+  const { user } = useUserContext();
 
-  if (!currentUser) {
+  const LikedPosts = posts?.filter((post: any) =>
+    post.likes?.some((like: any) => like.userId === user.id)
+  );
+
+  if (isFetching) {
     return <Loader />;
   }
 
   return (
     <div>
-      {currentUser.liked.length === 0 ? (
+      {LikedPosts?.length === 0 ? (
         <p>Not liked posts here</p>
       ) : (
-        <GridPostsList posts={currentUser.liked} showStats={false} />
+        <GridPostsList posts={LikedPosts} showStats={false} dataType="posts" />
       )}
     </div>
   );

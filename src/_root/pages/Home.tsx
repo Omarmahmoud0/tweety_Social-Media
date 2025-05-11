@@ -5,7 +5,6 @@ import {
   useGetAllUsers,
   useGetRecentPosts,
 } from "@/lib/react-query/queriesAndMutations";
-import { Models } from "appwrite";
 
 const Home = () => {
   const {
@@ -42,8 +41,8 @@ const Home = () => {
             <Loader />
           ) : (
             <ul className="flex flex-col flex-1 gap-9 w-full">
-              {posts?.documents.map((post: Models.Document) => (
-                <PostCard post={post} key={post.$id} />
+              {posts?.map((post: any) => (
+                <PostCard post={post} key={post.id} />
               ))}
             </ul>
           )}
@@ -56,8 +55,8 @@ const Home = () => {
           <Loader />
         ) : (
           <ul className="grid 2xl:grid-cols-2 gap-6">
-            {creators?.documents.map((creator) => (
-              <li key={creator.$id}>
+            {creators?.map((creator: any) => (
+              <li key={creator.id}>
                 <UserCard user={creator} />
               </li>
             ))}

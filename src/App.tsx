@@ -18,7 +18,6 @@ import AuthLayout from "./_auth/AuthLayout";
 import RootLayout from "./_root/RootLayout";
 import { Toaster } from "@/components/ui/toaster";
 import SendPassRecovery from "./_auth/forms/SendPassRecovery";
-import ResetPassword from "./_auth/forms/ResetPassword";
 
 const App = () => {
   return (
@@ -29,7 +28,6 @@ const App = () => {
           <Route path="/sign-in" element={<SignInForm />} />
           <Route path="/sign-up" element={<SignUpForm />} />
           <Route path="/password-recovery" element={<SendPassRecovery />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
         </Route>
 
         {/* PRIVATE ROUTES */}

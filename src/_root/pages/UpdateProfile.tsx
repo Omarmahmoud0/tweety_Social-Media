@@ -22,14 +22,21 @@ import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
 import Loader from "@/components/shared/Loader";
 import ProfileUploader from "@/components/shared/ProfileUploader";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const UpdateProfile = () => {
   const { id } = useParams();
   const { user, setUser } = useUserContext();
   const { data: currentUser } = useGetUserId(id || "");
   const { mutateAsync: Updateprofile, isPending } = useUpdateProfile();
+  const [userData, setuserData] = useState<any>(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (currentUser) {
+      setuserData(currentUser);
+    }
+  }, [currentUser]);
 
   // 1. Define your form.
   const form = useForm<z.infer<typeof UpdateProfileValidation>>({
@@ -67,8 +74,7 @@ const UpdateProfile = () => {
     const UpdateUser = await Updateprofile({
       ...values,
       profileId: user.id,
-      imageId: currentUser?.imageId,
-      imageUrl: currentUser?.imageUrl,
+      imageUrl: userData?.imageUrl,
     });
 
     if (!UpdateUser) {
@@ -115,7 +121,7 @@ const UpdateProfile = () => {
                   <FormControl>
                     <ProfileUploader
                       fieldChange={field.onChange}
-                      mediaUrl={currentUser?.imageUrl}
+                      mediaUrl={userData?.imageUrl}
                     />
                   </FormControl>
                   <FormMessage className="shad-form_message" />

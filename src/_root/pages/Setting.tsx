@@ -1,4 +1,3 @@
-import ChangeEmail from "@/components/shared/ChangeEmail";
 import ChangePassword from "@/components/shared/ChangePassword";
 import {
   Accordion,
@@ -8,8 +7,6 @@ import {
 } from "@/components/ui/accordion";
 
 const Setting = () => {
-
-
   return (
     <div className="saved-container">
       <div className="flex gap-2 w-full max-w-5xl">
@@ -28,14 +25,7 @@ const Setting = () => {
           collapsible
           className=" flex flex-col w-full gap-8 "
         >
-          <AccordionItem value="item-1" >
-            <AccordionTrigger>Update Email</AccordionTrigger>
-            <AccordionContent className="flex-center py-10">
-                <ChangeEmail />
-            </AccordionContent>
-          </AccordionItem>
-
-          <AccordionItem value="item-2" >
+          <AccordionItem value="item-2">
             <AccordionTrigger>Change Password</AccordionTrigger>
             <AccordionContent className="flex-center py-10">
               <ChangePassword />

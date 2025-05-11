@@ -1,5 +1,7 @@
-import { getCurrentUser } from "@/appwrite/api";
+import { auth, db } from "@/firebase/firebase";
 import { IContextType, IUser } from "@/types";
+import { onAuthStateChanged } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
 import { createContext, useContext, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -15,68 +17,71 @@ export const INITIAL_USER = {
 const INITIAL_STATE = {
   user: INITIAL_USER,
   isLoading: false,
-  isAuthenticated: false,
   setUser: () => {},
-  setIsAuthenticated: () => {},
-  checkAuthUser: async () => false as boolean,
+  token: "",
+  setToken: () => {},
 };
 
 const AuthContext = createContext<IContextType>(INITIAL_STATE);
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser>(INITIAL_USER);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
-  const checkAuthUser = async () => {
-    try {
-      const currentAccount = await getCurrentUser();
-
-      if (currentAccount) {
-        setUser({
-          id: currentAccount.$id,
-          name: currentAccount.name,
-          username: currentAccount.username,
-          email: currentAccount.email,
-          imageUrl: currentAccount.imageUrl,
-          bio: currentAccount.bio,
-        });
-        setIsAuthenticated(true);
-
-        return true;
-      }
-
-      return false;
-    } catch (error) {
-      console.log(error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+  const [token, setToken] = useState<string>("");
   const navigate = useNavigate();
 
-  const cookieFallback = localStorage.getItem("cookieFallback")
   useEffect(() => {
-    if (
-      cookieFallback === "[]" ||
-      cookieFallback === null ||
-      cookieFallback === undefined || 
-      cookieFallback === ''
-    ) {
-      return navigate("/sign-in");
-    }
-    checkAuthUser();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        const userData = userDoc.data();
+
+        if (userData) {
+          setUser({
+            id: user.uid,
+            name: userData.name,
+            email: userData.email,
+            username: userData.username,
+            imageUrl: userData.imageUrl,
+            bio: userData.bio,
+          });
+          setToken(user.uid);
+        }
+      } else {
+        console.log("User is signed out");
+      }
+      setIsLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("token");
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setToken(parsedUser);
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("token", JSON.stringify(token));
+  }, [token]);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    } else {
+      navigate("/sign-in");
+    }
+  }, [token]);
 
   const value = {
     user,
-    setUser,
     isLoading,
-    isAuthenticated,
-    setIsAuthenticated,
-    checkAuthUser,
+    setUser,
+    token,
+    setToken,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

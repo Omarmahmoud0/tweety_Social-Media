@@ -24,7 +24,7 @@ import { useUserContext } from "@/context/AuthContext";
 
 const SignUpForm = () => {
   const { toast } = useToast();
-  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
+  const { isLoading: isUserLoading, token } = useUserContext();
   const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof SignUpValidation>>({
@@ -60,8 +60,7 @@ const SignUpForm = () => {
       return toast({ title: "Sign in failed. Please try again." });
     }
 
-    const isLoading = await checkAuthUser();
-    if (isLoading) {
+    if (token) {
       form.reset();
       navigate("/");
     } else {

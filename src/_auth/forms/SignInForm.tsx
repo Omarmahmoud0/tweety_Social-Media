@@ -14,15 +14,14 @@ import { useForm } from "react-hook-form";
 import Loader from "@/components/shared/Loader";
 import { z } from "zod";
 import { SignInValidation } from "@/lib/validation";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { useSignInAccount } from "@/lib/react-query/queriesAndMutations";
 import { useUserContext } from "@/context/AuthContext";
 
 const SignInForm = () => {
   const { toast } = useToast();
-  const { checkAuthUser, isLoading: isUserLoading } = useUserContext();
-  const navigate = useNavigate();
+  const { isLoading: isUserLoading, token } = useUserContext();
 
   const form = useForm<z.infer<typeof SignInValidation>>({
     resolver: zodResolver(SignInValidation),
@@ -45,12 +44,10 @@ const SignInForm = () => {
       return toast({ title: "Sign in failed. Please try again." });
     }
 
-    const isLoggedIn = await checkAuthUser();
-    if (isLoggedIn) {
+    if (token) {
       form.reset();
-      navigate("/");
     } else {
-      return toast({ title: "Sign up failed. Please try again." });
+      return toast({ title: "Welcome back!" });
     }
   }
 

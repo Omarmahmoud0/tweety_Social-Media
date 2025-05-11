@@ -1,32 +1,22 @@
-import { Link, NavLink, useLocation, useNavigate } from "react-router-dom";
+import { Link, NavLink, useLocation } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useSignOutAccount } from "@/lib/react-query/queriesAndMutations";
-import { useEffect } from "react";
 import { useUserContext } from "@/context/AuthContext";
 import { sidebarLinks } from "@/constants";
 import { INavLink } from "@/types";
 
 const Leftbar = () => {
-  const { mutateAsync: signOut, isSuccess } = useSignOutAccount();
-  const navigate = useNavigate();
-  const { user } = useUserContext();
+  const { mutateAsync: signOut } = useSignOutAccount();
+  const { user, setToken } = useUserContext();
   const { pathname } = useLocation();
 
-  useEffect(() => {
-    if (isSuccess) {
-      navigate("/sign-in");
-    }
-  }, [isSuccess]);
   return (
     <nav className="leftsidebar">
       <div className="flex flex-col gap-11">
         <Link to="/" className="flex gap-3 items-center">
-          <img
-            src="/assets/images/logo.svg"
-            alt="logo"
-            height={36}
-            width={170}
-          />
+          <p className="text-4xl text-center w-full text-white m-0 p-0">
+            Tweety
+          </p>
         </Link>
 
         <Link to={`/profile/${user.id}`} className="flex gap-3 items-center">
@@ -73,14 +63,22 @@ const Leftbar = () => {
         <Button
           variant="ghost"
           className="shad-button_ghost"
-          onClick={() => signOut()}
+          onClick={() => {
+            signOut();
+            setToken("");
+          }}
         >
           <img src="/assets/icons/logout.svg" alt="logout" />
           <p className="small-medium lg:base-medium">Logout</p>
         </Button>
         <Link to="/setting">
           <Button variant="ghost" className="shad-button_ghost">
-            <img src="/assets/icons/settings.svg" alt="settings" width={24} height={24} />
+            <img
+              src="/assets/icons/settings.svg"
+              alt="settings"
+              width={24}
+              height={24}
+            />
             <p className="small-medium lg:base-medium">Settings</p>
           </Button>
         </Link>
