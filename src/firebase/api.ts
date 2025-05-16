@@ -178,8 +178,6 @@ export async function likePost(
         likes: arrayUnion(user),
       });
     }
-
-    // ✅ نرجع الداتا بعد التحديث
     const updatedSnap = await getDoc(postRef);
     return {
       id: postId,
@@ -198,12 +196,73 @@ export async function commentPost(comment: ICommentUser) {
       imageUrl: comment.imageUrl,
       userId: comment.userId,
       createdAt: serverTimestamp(),
+      likes: [],
     };
 
     const commentsRef = collection(db, "posts", comment.postId, "comments");
     const docRef = await addDoc(commentsRef, commentDoc);
 
     return { id: docRef.id, ...commentDoc };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function likeComment(
+  postId: string,
+  commentId: string,
+  userId: string,
+  isLiked: boolean
+) {
+  if (!commentId || !userId) return;
+  try {
+    const postRef = doc(db, "posts", postId, "comments", commentId);
+
+    if (isLiked) {
+      await updateDoc(postRef, {
+        likes: arrayRemove(userId),
+      });
+    } else {
+      await updateDoc(postRef, {
+        likes: arrayUnion(userId),
+      });
+    }
+    const updatedSnap = await getDoc(postRef);
+    return {
+      id: commentId,
+      ...updatedSnap.data(),
+    };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function updateComment(comment: {
+  postId: string;
+  commentId: string;
+  title: string;
+}) {
+  try {
+    const postRef = doc(
+      db,
+      "posts",
+      comment.postId,
+      "comments",
+      comment.commentId
+    );
+
+    await updateDoc(postRef, { title: comment.title });
+    return { id: postRef.id };
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function deleteComment(postId: string, commentId: string) {
+  try {
+    const postRef = doc(db, "posts", postId, "comments", commentId);
+    await deleteDoc(postRef);
+    return { status: "Ok" };
   } catch (error) {
     console.log(error);
   }
@@ -260,8 +319,6 @@ export async function getSaveUserPosts(userId: string) {
     console.log(error);
   }
 }
-
-
 
 export async function deleteSavedPost(userId: string, savedRcordID: string) {
   try {

@@ -19,6 +19,7 @@ import {
   updateUserPassword,
   updatePost,
   updateProfile,
+  likeComment,
 } from "@/firebase/api";
 import {
   ICommentUser,
@@ -124,6 +125,38 @@ export const useComment = () => {
       });
       queryClient.invalidateQueries({
         queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      });
+    },
+  });
+};
+
+export const useLikeComment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      postId,
+      commentId,
+      userId,
+      isLiked,
+    }: {
+      postId: string;
+      commentId: string;
+      userId: string;
+      isLiked: boolean;
+    }) => likeComment(postId, commentId, userId, isLiked),
+    onSuccess: (data) => {
+      queryClient.setQueriesData(
+        {
+          queryKey: [QUERY_KEYS.GET_POST_BY_ID, data?.id],
+        },
+        data
+      );
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_RECENT_POSTS],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QUERY_KEYS.GET_POSTS],
       });
     },
   });

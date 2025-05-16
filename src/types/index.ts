@@ -67,11 +67,13 @@ export type IUpdateProfile = {
 };
 
 export type ICommentUser = {
+  id?: string;
   name: string;
   imageUrl: string;
   userId: string;
   title: string;
   postId: string;
+  likes?: string[];
 };
 
 export interface SavePost {
