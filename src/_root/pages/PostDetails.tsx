@@ -13,7 +13,7 @@ import {
   useGetPostById,
   useLikeComment,
 } from "@/lib/react-query/queriesAndMutations";
-import { checkIsLiked, multiFormatDateString } from "@/lib/utils";
+import { multiFormatDateString } from "@/lib/utils";
 import { ICommentUser } from "@/types";
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -41,7 +41,7 @@ const PostDetails = () => {
   const [Post, setPost] = useState<any>(post);
   const { user } = useUserContext();
   const { mutate: deletePost } = useDeletePost();
-  const [comments, setComments] = useState<any>([]);
+  const [comments, setComments] = useState<any[]>([]);
   const [EditDev, setEditDev] = useState(false);
   const [idComment, setidComment] = useState<string | undefined>("");
   const { mutateAsync: likeComment } = useLikeComment();
@@ -201,7 +201,6 @@ const PostDetails = () => {
                 {comments?.map((comment: ICommentUser) => (
                   <div
                     className="flex gap-2 relative"
-                    // onMouseLeave={() => setEditDev(false)}
                     onMouseOver={() => {
                       setEditDev(true);
                       setidComment(comment.id);
@@ -231,7 +230,7 @@ const PostDetails = () => {
                           <img
                             className="cursor-pointer"
                             src={
-                              checkIsLiked(comment.likes!, user.id)
+                              comment.likes?.includes(user.id)
                                 ? "/assets/icons/liked.svg"
                                 : "/assets/icons/like.svg"
                             }

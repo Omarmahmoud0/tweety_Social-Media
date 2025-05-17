@@ -79,6 +79,7 @@ const PostStats = ({ post, user, comments }: PostStatsProps) => {
     }
   };
 
+
   return (
     <div className="flex justify-between items-center z-20">
       <div className="flex gap-3 mr-5">
